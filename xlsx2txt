@@ -1,0 +1,24 @@
+import pandas as pd
+import os
+
+xlsx_path = r"G:\21 省医蔡婷-信号追踪统计-20231218\03 20231219 LAMP1-SL3 GzmB-NG ROI layout\result3-1\CS"
+xlsx_dir = os.listdir(xlsx_path)
+for kk in range(len(xlsx_dir)):
+    xlsx_name = xlsx_dir[kk]
+    file_path = os.path.join(xlsx_path, xlsx_name, 'DeepSORT.xlsx')
+    # 读取 Excel 文件中的所有 sheet
+    xls = pd.ExcelFile(file_path)
+    # 创建一个空的 DataFrame，用于存储所有 sheet 的内容
+    all_data = pd.DataFrame()
+    # 遍历每个 sheet，将其内容合并到 all_data 中
+    for sheet_name in xls.sheet_names:
+        ID_number = int(sheet_name.split('_')[-1])
+        df = pd.read_excel(file_path, sheet_name=sheet_name)
+        if len(df)>2:
+            df.insert(1, 'ID', ID_number)
+            all_data = pd.concat([all_data, df], ignore_index=True)
+    # 按照第二列（假设第二列的列名为 'Column2'）从小到大排序
+    all_data.sort_values(by='frame', inplace=True)
+    # 将合并后的内容输出到文本文件
+    output_file = xlsx_name+'.txt'
+    all_data.to_csv(output_file, sep='\t', index=False)
